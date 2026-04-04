@@ -5,11 +5,11 @@
 //! Provides Strong Eventual Consistency for distributed JSON documents
 //! with no network dependency.
 
-pub mod vv;
-pub mod register;
+pub mod codec;
+pub mod delta;
+pub mod doc;
 pub mod ormap;
+pub mod register;
 pub mod rga;
 pub mod value;
-pub mod doc;
-pub mod delta;
-pub mod codec;
+pub mod vv;

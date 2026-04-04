@@ -4,9 +4,18 @@ use concordat::vv::{Dot, VersionVector};
 
 #[test]
 fn test_dot_equality() {
-    let d1 = Dot { replica: "a".into(), counter: 1 };
-    let d2 = Dot { replica: "a".into(), counter: 1 };
-    let d3 = Dot { replica: "a".into(), counter: 2 };
+    let d1 = Dot {
+        replica: "a".into(),
+        counter: 1,
+    };
+    let d2 = Dot {
+        replica: "a".into(),
+        counter: 1,
+    };
+    let d3 = Dot {
+        replica: "a".into(),
+        counter: 2,
+    };
     assert_eq!(d1, d2);
     assert_ne!(d1, d3);
 }
@@ -46,15 +55,27 @@ fn test_contains_seen_dots() {
     vv.inc("a"); // counter = 1
     vv.inc("a"); // counter = 2
 
-    assert!(vv.contains(&Dot { replica: "a".into(), counter: 1 }));
-    assert!(vv.contains(&Dot { replica: "a".into(), counter: 2 }));
-    assert!(!vv.contains(&Dot { replica: "a".into(), counter: 3 }));
+    assert!(vv.contains(&Dot {
+        replica: "a".into(),
+        counter: 1
+    }));
+    assert!(vv.contains(&Dot {
+        replica: "a".into(),
+        counter: 2
+    }));
+    assert!(!vv.contains(&Dot {
+        replica: "a".into(),
+        counter: 3
+    }));
 }
 
 #[test]
 fn test_contains_unseen_replica() {
     let vv = VersionVector::new();
-    assert!(!vv.contains(&Dot { replica: "x".into(), counter: 1 }));
+    assert!(!vv.contains(&Dot {
+        replica: "x".into(),
+        counter: 1
+    }));
 }
 
 // ─── VersionVector::merge — Commutativity ───────────────────
