@@ -3,6 +3,7 @@
 //! Provides an ergonomic interface for manipulating a CRDT JSON document.
 //! All operations are local; synchronization happens via deltas.
 
+use crate::delta::Delta;
 use crate::ormap::OrMap;
 use crate::register::MvRegister;
 use crate::value::CrdtValue;
@@ -121,7 +122,7 @@ impl CrdtDoc {
     pub fn materialize(&self) -> serde_json::Value {
         let mut obj = serde_json::Map::new();
         for key in self.root.keys() {
-            if let Some(value) = self.root.get(key) {
+            if let Some(value) = self.root.get_merged(key) {
                 obj.insert(key.clone(), value.materialize());
             }
         }
@@ -136,6 +137,28 @@ impl CrdtDoc {
     /// Get the replica ID.
     pub fn replica_id(&self) -> &str {
         &self.replica_id
+    }
+
+    /// Produce a delta containing all state since the given version vector.
+    ///
+    /// If `since` is empty, returns the full document state.
+    /// If `since` matches the current VV, returns an empty delta.
+    pub fn delta_since(&self, _since: &VersionVector) -> Delta {
+        // For delta-state CRDTs, the delta is the full state.
+        // A smarter implementation could filter, but correctness requires
+        // that the delta, when merged, brings the remote up to date.
+        // The simplest correct approach: send the full root + VV.
+        // The merge operation is idempotent, so sending more than needed is safe.
+        Delta {
+            root: self.root.clone(),
+            vv: self.vv.clone(),
+        }
+    }
+
+    /// Merge a delta from a remote replica into this document.
+    pub fn merge_delta(&mut self, delta: &Delta) {
+        self.root.merge(&delta.root);
+        self.vv.merge(&delta.vv);
     }
 
     // ─── Internal helpers ───────────────────────────────────

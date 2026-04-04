@@ -73,7 +73,7 @@ impl CrdtValue {
             CrdtValue::Object(map) => {
                 let mut obj = serde_json::Map::new();
                 for key in map.keys() {
-                    if let Some(value) = map.get(key) {
+                    if let Some(value) = map.get_merged(key) {
                         obj.insert(key.clone(), value.materialize());
                     }
                 }
@@ -94,6 +94,12 @@ impl PartialEq for CrdtValue {
 }
 
 impl Eq for CrdtValue {}
+
+impl crate::ormap::ValueMerge for CrdtValue {
+    fn value_merge(&mut self, other: &Self) {
+        self.merge(other);
+    }
+}
 
 /// Type priority for conflict resolution on type mismatch.
 fn type_priority(v: &CrdtValue) -> u8 {

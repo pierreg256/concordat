@@ -17,3 +17,9 @@ mod value;
 
 #[path = "unit/doc.rs"]
 mod doc;
+
+#[path = "unit/delta.rs"]
+mod delta;
+
+#[path = "unit/codec.rs"]
+mod codec;
