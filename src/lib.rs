@@ -13,3 +13,4 @@ pub mod register;
 pub mod rga;
 pub mod value;
 pub mod vv;
+pub mod wasm;

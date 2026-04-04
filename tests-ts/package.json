@@ -1,0 +1,11 @@
+{
+  "name": "concordat-interop-tests",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test:interop": "node --test interop.test.mjs"
+  },
+  "dependencies": {
+    "concordat": "file:../pkg"
+  }
+}
