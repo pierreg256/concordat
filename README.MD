@@ -1,5 +1,16 @@
 # concordat
 
+```
+        ◉──────◉
+       ╱ ╲    ╱
+      ╱   ╲  ╱
+     ◉─────◉
+      ╲   ╱
+       ╲ ╱
+        ◉
+   concordat
+```
+
 A **delta-state CRDT JSON library** written in Rust, providing Strong Eventual Consistency for distributed JSON documents — with no network dependency.
 
 ## Overview
