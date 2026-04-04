@@ -4,16 +4,18 @@ Thank you for your interest in contributing to `concordat`. This document descri
 
 ## Architecture Overview
 
-The project is structured around **six agent roles** (A–F). Each role has a clear scope. Contributions must stay within the boundaries of the relevant role.
+The project is structured around **six specialized agents**. Each agent has a clear scope. Contributions must stay within the boundaries of the relevant agent.
 
 | Agent | Scope | Key files |
 |---|---|---|
-| **A – Core CRDT** | OR-Map, RGA, Register, VersionVector | `ormap.rs`, `rga.rs`, `register.rs`, `vv.rs` |
-| **B – Document & API** | `CrdtDoc`, JsonPath, JSON Patch → CRDT ops, `materialize()` | `doc.rs`, `value.rs` |
-| **C – Delta, Codec & WASM** | Delta types, serialization, WASM bindings | `delta.rs`, `codec.rs`, `wasm/` |
-| **D – Unit Tests** | CRDT property tests, convergence, RGA edge cases, JSON conflicts | `tests/unit/*.rs` |
-| **E – Integration Tests** | Multi-replica scenarios, partitions, delta-state correctness | `tests/integration/*.rs` |
-| **F – TS Interop Tests** | Cross-language Rust ↔ TypeScript tests via WASM | `tests-ts/*.ts` |
+| **Lattice** – Core CRDT | OR-Map, RGA, Register, VersionVector | `ormap.rs`, `rga.rs`, `register.rs`, `vv.rs` |
+| **Document** – API | `CrdtDoc`, JsonPath, JSON Patch → CRDT ops, `materialize()` | `doc.rs`, `value.rs` |
+| **Bridge** – Delta, Codec & WASM | Delta types, serialization, WASM bindings | `delta.rs`, `codec.rs`, `wasm/` |
+| **Sentinel** – Unit Tests | CRDT property tests, convergence, RGA edge cases, JSON conflicts | `tests/unit/*.rs` |
+| **Convergence** – Integration Tests | Multi-replica scenarios, partitions, delta-state correctness | `tests/integration/*.rs` |
+| **Interop** – TS Interop Tests | Cross-language Rust ↔ TypeScript tests via WASM | `tests-ts/*.ts` |
+
+Agent definitions live in `.github/agents/*.agent.md`.
 
 ## Non-Negotiable Rules
 
@@ -98,20 +100,20 @@ Use clear, imperative-mood commit messages:
 ```
 feat(rga): add concurrent insert resolution at same index
 fix(ormap): correct tombstone handling on re-add
-test(unit): add associativity tests for MV-Register
-test(integration): add 5-replica partition scenario
+test(sentinel): add associativity tests for MV-Register
+test(convergence): add 5-replica partition scenario
 ```
 
 ### Pull Requests
 
 - One logical change per PR.
-- Reference the agent role your change belongs to (A–F).
+- Reference the agent your change belongs to (Lattice, Document, Bridge, Sentinel, Convergence, Interop).
 - Include or update tests for every behavioral change.
 - Describe what invariants your change preserves or introduces.
 
 ## Test Requirements
 
-### Unit Tests (Agent D)
+### Unit Tests (Sentinel)
 
 Every CRDT type must have tests for:
 
@@ -121,14 +123,14 @@ Every CRDT type must have tests for:
 - RGA: concurrent insert at same index, concurrent delete, insert after tombstone.
 - JSON: key conflicts, concurrent array edits, nested structures.
 
-### Integration Tests (Agent E)
+### Integration Tests (Convergence)
 
 - Scenarios with 2–5 replicas.
 - Simulated network partitions: local mutations → partial delta exchange → reconnection → convergence.
 - `delta_since(vv)` must return exactly the right deltas (no missing, no superfluous).
 - Final verification: all replicas produce identical output from `materialize()`.
 
-### TypeScript Interop Tests (Agent F)
+### TypeScript Interop Tests (Interop)
 
 - Rust → TS: mutation in Rust, delta sent as bytes, applied in TS, convergence verified.
 - TS → Rust: mutation in TS, delta sent as bytes, applied in Rust, convergence verified.
@@ -155,4 +157,4 @@ Optional features behind flags:
 
 ## Questions?
 
-Open an issue describing what you want to change and which agent role (A–F) it falls under. We'll discuss scope and approach before you write code.
+Open an issue describing what you want to change and which agent it falls under (Lattice, Document, Bridge, Sentinel, Convergence, Interop). We'll discuss scope and approach before you write code.

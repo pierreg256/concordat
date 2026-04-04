@@ -16,12 +16,14 @@ Concordat is a delta-state CRDT JSON library in Rust with TypeScript/WASM intero
 
 | Agent | Scope | Files |
 |-------|-------|-------|
-| A | Core CRDT | `ormap.rs`, `rga.rs`, `register.rs`, `vv.rs` |
-| B | Document & API | `doc.rs`, `value.rs` |
-| C | Delta, Codec & WASM | `delta.rs`, `codec.rs`, `wasm/` |
-| D | Unit Tests | `tests/unit/*.rs` |
-| E | Integration Tests | `tests/integration/*.rs` |
-| F | TS Interop Tests | `tests-ts/*.ts` |
+| **Lattice** | Core CRDT (OR-Map, RGA, Register, VersionVector) | `ormap.rs`, `rga.rs`, `register.rs`, `vv.rs` |
+| **Document** | Document API, JsonPath, materialize | `doc.rs`, `value.rs` |
+| **Bridge** | Delta, Codec & WASM bindings | `delta.rs`, `codec.rs`, `wasm/` |
+| **Sentinel** | Unit Tests (CRDT property proofs) | `tests/unit/*.rs` |
+| **Convergence** | Integration Tests (multi-replica scenarios) | `tests/integration/*.rs` |
+| **Interop** | TypeScript interop tests via WASM | `tests-ts/*.ts` |
+
+Agent definitions: `.github/agents/*.agent.md`
 
 ## Hard Rules
 

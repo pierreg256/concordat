@@ -1,13 +1,13 @@
-## Agent Role
+## Agent
 
 Which agent scope does this PR belong to?
 
-- [ ] **A** – Core CRDT (OR-Map, RGA, Register, VersionVector)
-- [ ] **B** – Document & API (CrdtDoc, JsonPath, materialize)
-- [ ] **C** – Delta, Codec & WASM
-- [ ] **D** – Unit Tests
-- [ ] **E** – Integration Tests
-- [ ] **F** – TypeScript Interop Tests
+- [ ] **Lattice** – Core CRDT (OR-Map, RGA, Register, VersionVector)
+- [ ] **Document** – Document & API (CrdtDoc, JsonPath, materialize)
+- [ ] **Bridge** – Delta, Codec & WASM
+- [ ] **Sentinel** – Unit Tests
+- [ ] **Convergence** – Integration Tests
+- [ ] **Interop** – TypeScript Interop Tests
 
 ## Description
 
