@@ -60,7 +60,7 @@ jobs:
         with:
           name: wasm-pkg
           path: pkg/
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: "20"
       - working-directory: tests-ts
