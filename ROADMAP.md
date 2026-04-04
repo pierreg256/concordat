@@ -52,7 +52,7 @@ No step depends on code that hasn't been tested in a previous step.
 
 ---
 
-## Step 2 — MV-Register
+## Step 2 — MV-Register ✅
 
 **Agent**: Lattice
 **Goal**: Multi-Value Register for JSON scalar values. Simplest CRDT type.
@@ -64,24 +64,24 @@ No step depends on code that hasn't been tested in a previous step.
 
 **Operations**:
 - `MvRegister::new()`
-- `MvRegister::set(value, dot, vv) -> Delta`
+- `MvRegister::set(value, dot, vv)`
 - `MvRegister::merge(&mut self, other: &MvRegister)`
-- `MvRegister::values() -> &[V]` — all concurrent values
+- `MvRegister::values() -> Vec<&V>` — all concurrent values
 - `MvRegister::value() -> Option<&V>` — single value (if no conflict)
 
-**Tests** (Sentinel):
-- [ ] Commutativity: `merge(A, B) == merge(B, A)`
-- [ ] Associativity: `merge(merge(A, B), C) == merge(A, merge(B, C))`
-- [ ] Idempotence: `merge(A, A) == A`
-- [ ] Sequential writes: later write wins (causally)
-- [ ] Concurrent writes: both values preserved
-- [ ] Merge after concurrent writes resolves correctly
+**Tests** (Sentinel): 10 tests
+- [x] Commutativity: `merge(A, B) == merge(B, A)`
+- [x] Associativity: `merge(merge(A, B), C) == merge(A, merge(B, C))`
+- [x] Idempotence: `merge(A, A) == A`
+- [x] Sequential writes: later write wins (causally)
+- [x] Concurrent writes: both values preserved
+- [x] Merge after concurrent writes resolves correctly
 
-**Checkpoint**: `cargo test` — VV + Register tests pass.
+**Checkpoint**: ✅ `cargo test` — 27/27 tests pass (VV + Register).
 
 ---
 
-## Step 3 — OR-Map
+## Step 3 — OR-Map ✅
 
 **Agent**: Lattice
 **Goal**: Observed-Remove Map for JSON objects.
@@ -89,28 +89,28 @@ No step depends on code that hasn't been tested in a previous step.
 **Files**: `src/ormap.rs`
 
 **Types**:
-- `OrMap<K, V>` — keys to CRDT values, with causal context for add/remove
+- `OrMap<K, V>` — keys to CRDT values, with dot-per-value tracking
 
 **Operations**:
 - `OrMap::new()`
-- `OrMap::put(key, value, dot) -> Delta`
-- `OrMap::remove(key, vv) -> Delta`
+- `OrMap::put(key, value, dot)`
+- `OrMap::remove(key, vv) -> bool`
 - `OrMap::get(key) -> Option<&V>`
 - `OrMap::merge(&mut self, other: &OrMap)`
 - `OrMap::keys() -> impl Iterator`
 
-**Tests** (Sentinel):
-- [ ] Commutativity, associativity, idempotence
-- [ ] Add then remove: key disappears
-- [ ] Concurrent add/remove: add wins (OR-Map semantics)
-- [ ] Concurrent puts on same key: values coexist until resolved
-- [ ] Remove then re-add: key reappears with new value
+**Tests** (Sentinel): 12 tests
+- [x] Commutativity, associativity, idempotence
+- [x] Add then remove: key disappears
+- [x] Concurrent add/remove: add wins (OR-Map semantics)
+- [x] Concurrent puts on same key: both present
+- [x] Remove then re-add: key reappears with new value
 
-**Checkpoint**: `cargo test` — VV + Register + OR-Map tests pass.
+**Checkpoint**: ✅ `cargo test` — 39/39 tests pass (VV + Register + OR-Map).
 
 ---
 
-## Step 4 — RGA (Replicated Growable Array)
+## Step 4 — RGA (Replicated Growable Array) ✅
 
 **Agent**: Lattice
 **Goal**: JSON arrays with insert/delete and tombstones.
@@ -118,32 +118,34 @@ No step depends on code that hasn't been tested in a previous step.
 **Files**: `src/rga.rs`
 
 **Types**:
-- `Rga<V>` — sequence of elements with unique IDs and tombstones
-- `RgaEntry { id: Dot, value: Option<V>, tombstone: bool }`
+- `Rga<V>` — sequence with dot-identified nodes and tombstones
+- `RgaNode { id: Dot, anchor: Option<Dot>, value: Option<V> }`
 
 **Operations**:
 - `Rga::new()`
-- `Rga::insert(index, value, dot) -> Delta`
-- `Rga::delete(index, vv) -> Delta`
-- `Rga::get(index) -> Option<&V>` — skips tombstones
-- `Rga::len() -> usize` — visible (non-tombstone) count
+- `Rga::insert(index, value, dot)`
+- `Rga::delete(index) -> bool`
+- `Rga::get(index) -> Option<&V>`
+- `Rga::len() -> usize`
 - `Rga::merge(&mut self, other: &Rga)`
-- `Rga::iter() -> impl Iterator` — visible elements only
+- `Rga::iter() -> impl Iterator`
 
-**Tests** (Sentinel):
-- [ ] Commutativity, associativity, idempotence
-- [ ] Sequential insert/delete
-- [ ] **Concurrent insert at same index** — deterministic ordering (by Dot)
-- [ ] **Concurrent delete of same element** — no double-delete
-- [ ] **Insert after tombstone** — correct anchoring
-- [ ] Multiple inserts at different positions
-- [ ] Delete at head, middle, tail
+**Implementation note**: Uses DFS-based canonical reordering after each insert/merge to guarantee commutativity. Siblings with the same anchor are sorted by descending dot.
 
-**Checkpoint**: `cargo test` — all core CRDT tests pass. This is the hardest step.
+**Tests** (Sentinel): 13 tests
+- [x] Commutativity, associativity, idempotence
+- [x] Sequential insert/delete
+- [x] **Concurrent insert at same index** — deterministic ordering (by Dot)
+- [x] **Concurrent delete of same element** — no double-delete
+- [x] **Insert after tombstone** — correct anchoring
+- [x] Multiple inserts at different positions
+- [x] Delete at head, middle, tail
+
+**Checkpoint**: ✅ `cargo test` — 52/52 tests pass.
 
 ---
 
-## Step 5 — CrdtValue & Nesting
+## Step 5 — CrdtValue & Nesting ✅
 
 **Agent**: Lattice + Document
 **Goal**: Recursive value type that ties all CRDT types together.
@@ -163,17 +165,17 @@ enum CrdtValue {
 - `CrdtValue::merge(&mut self, other: &CrdtValue)`
 - `CrdtValue::materialize() -> serde_json::Value`
 
-**Tests** (Sentinel):
-- [ ] Nested Object → Scalar: set, merge, materialize
-- [ ] Nested Object → Array → Scalar: insert, merge, materialize
-- [ ] Nested Object → Object: recursive merge convergence
-- [ ] Type mismatch on concurrent set: defined behavior
+**Tests** (Sentinel): 8 tests
+- [x] Nested Object → Scalar: set, merge, materialize
+- [x] Nested Object → Array → Scalar: insert, merge, materialize
+- [x] Nested Object → Object: recursive merge convergence
+- [x] Type mismatch on concurrent set: Object wins over Array/Scalar
 
-**Checkpoint**: `cargo test` — core CRDTs + nested values tested.
+**Checkpoint**: ✅ `cargo test` — 60/60 tests pass.
 
 ---
 
-## Step 6 — CrdtDoc & Public API
+## Step 6 — CrdtDoc & Public API ✅
 
 **Agent**: Document
 **Goal**: Top-level document with JsonPath resolution and ergonomic API.
@@ -183,20 +185,21 @@ enum CrdtValue {
 **Operations**:
 - `CrdtDoc::new(replica_id: &str)`
 - `CrdtDoc::set(path: &str, value: serde_json::Value)`
+- `CrdtDoc::set_array(path: &str)`
 - `CrdtDoc::remove(path: &str)`
 - `CrdtDoc::array_insert(path: &str, index: usize, value: serde_json::Value)`
 - `CrdtDoc::array_delete(path: &str, index: usize)`
 - `CrdtDoc::materialize() -> serde_json::Value`
 - `CrdtDoc::version_vector() -> &VersionVector`
 
-**Tests** (Sentinel):
-- [ ] `set` + `materialize` round-trip
-- [ ] `set` nested path creates intermediate objects
-- [ ] `remove` makes key disappear from materialized output
-- [ ] `array_insert` / `array_delete` on nested arrays
-- [ ] Multiple operations produce correct JSON output
+**Tests** (Sentinel): 11 tests
+- [x] `set` + `materialize` round-trip
+- [x] `set` nested path creates intermediate objects
+- [x] `remove` makes key disappear from materialized output
+- [x] `array_insert` / `array_delete` on nested arrays
+- [x] Multiple operations produce correct JSON output
 
-**Checkpoint**: `cargo test` — document API works end-to-end locally (single replica).
+**Checkpoint**: ✅ `cargo test` — 71/71 tests pass. Document API works end-to-end (single replica).
 
 ---
 

@@ -35,6 +35,12 @@ impl VersionVector {
         }
     }
 
+    /// Ensure the version vector tracks at least the given dot.
+    pub fn inc_to(&mut self, dot: &Dot) {
+        let entry = self.map.entry(dot.replica.clone()).or_insert(0);
+        *entry = (*entry).max(dot.counter);
+    }
+
     /// Get the current counter for a replica (0 if unseen).
     pub fn get(&self, replica: &str) -> u64 {
         self.map.get(replica).copied().unwrap_or(0)
