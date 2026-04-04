@@ -5,23 +5,23 @@ No step depends on code that hasn't been tested in a previous step.
 
 ---
 
-## Step 0 — Project Scaffolding
+## Step 0 — Project Scaffolding ✅
 
 **Agent**: —
 **Goal**: Cargo project structure, module declarations, dependencies.
 
 **Tasks**:
-- [ ] `cargo init --lib`
-- [ ] `Cargo.toml` with dependencies: `serde`, `serde_json`, `bincode` or `postcard`
-- [ ] Module skeleton: `lib.rs` → `vv`, `register`, `ormap`, `rga`, `value`, `doc`, `delta`, `codec`
-- [ ] Empty `tests/` structure
-- [ ] Compiles with `cargo check`
+- [x] `cargo init --lib`
+- [x] `Cargo.toml` with dependencies: `serde`, `serde_json`, `bincode` or `postcard`
+- [x] Module skeleton: `lib.rs` → `vv`, `register`, `ormap`, `rga`, `value`, `doc`, `delta`, `codec`
+- [x] Empty `tests/` structure
+- [x] Compiles with `cargo check`
 
-**Checkpoint**: `cargo check` passes. No logic yet — just the skeleton.
+**Checkpoint**: ✅ `cargo check` passes.
 
 ---
 
-## Step 1 — VersionVector & Dot
+## Step 1 — VersionVector & Dot ✅
 
 **Agent**: Lattice
 **Goal**: Causal context tracking — the foundation everything else builds on.
@@ -40,15 +40,15 @@ No step depends on code that hasn't been tested in a previous step.
 - `VersionVector::merge(&mut self, other: &VersionVector)`
 - `VersionVector::delta_since(other: &VersionVector) -> VersionVector`
 
-**Tests** (Sentinel):
-- [ ] `merge` is commutative
-- [ ] `merge` is associative
-- [ ] `merge` is idempotent
-- [ ] `inc` produces sequential dots
-- [ ] `contains` returns true for seen dots, false for unseen
-- [ ] `delta_since` returns only the diff
+**Tests** (Sentinel): 17 tests
+- [x] `merge` is commutative
+- [x] `merge` is associative
+- [x] `merge` is idempotent
+- [x] `inc` produces sequential dots
+- [x] `contains` returns true for seen dots, false for unseen
+- [x] `delta_since` returns only the diff
 
-**Checkpoint**: `cargo test` — all VV tests pass.
+**Checkpoint**: ✅ `cargo test` — 17/17 VV tests pass.
 
 ---
 
