@@ -35,3 +35,8 @@ yarn-error.log*
 *.profdata
 lcov.info
 tarpaulin-report.html
+
+
+# Added by cargo
+
+/target
