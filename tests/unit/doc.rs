@@ -160,7 +160,7 @@ fn test_doc_remove_cross_replica_top_level() {
     b.set("/x", json!(42));
 
     // A merges B's state — A now sees /x
-    let delta_b = b.delta_since(&a.version_vector().clone());
+    let delta_b = b.delta_since(a.version_vector());
     a.merge_delta(&delta_b);
     assert_eq!(a.materialize()["x"], json!(42));
 
