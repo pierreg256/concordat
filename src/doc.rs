@@ -80,11 +80,11 @@ impl CrdtDoc {
         } else {
             let vv = self.vv.clone();
             let last = segments.last().unwrap().to_string();
-            if let Some(CrdtValue::Object(map)) =
-                navigate_mut(&mut self.root, &segments[..segments.len() - 1])
-            {
-                map.remove(&last, &vv);
-            }
+            // For nested removes, we must remove from ALL concurrent entries
+            // of the parent, not just the "last" one. Multiple replicas may
+            // have created the same intermediate key independently, resulting
+            // in multiple concurrent OrMap entries for the parent path.
+            remove_nested_all(&mut self.root, &segments[..segments.len() - 1], &last, &vv);
         }
     }
 
@@ -259,4 +259,45 @@ fn navigate_mut<'a>(
 /// Parse a path like "/a/b/c" into ["a", "b", "c"].
 fn parse_path(path: &str) -> Vec<&str> {
     path.split('/').filter(|s| !s.is_empty()).collect()
+}
+
+/// Remove a key from ALL concurrent entries at a nested path.
+///
+/// When multiple replicas create the same intermediate key (e.g. `/nodes`)
+/// independently, the OrMap entry for that key has multiple concurrent items.
+/// A single `navigate_mut` picks only one, missing the others. This function
+/// walks through ALL concurrent items at each level so the remove hits every
+/// copy of the target key.
+fn remove_nested_all(
+    root: &mut OrMap<String, CrdtValue>,
+    parent_segments: &[&str],
+    leaf_key: &str,
+    vv: &VersionVector,
+) {
+    if parent_segments.is_empty() {
+        return;
+    }
+
+    let first_key = parent_segments[0].to_string();
+    let items = match root.get_entry_mut(&first_key) {
+        Some(items) => items,
+        None => return,
+    };
+
+    if parent_segments.len() == 1 {
+        // We've reached the parent — remove the leaf from all concurrent
+        // Object values at this level.
+        for (_, cv) in items.iter_mut() {
+            if let CrdtValue::Object(map) = cv {
+                map.remove(&leaf_key.to_string(), vv);
+            }
+        }
+    } else {
+        // Recurse into all concurrent Object values for the next segment.
+        for (_, cv) in items.iter_mut() {
+            if let CrdtValue::Object(map) = cv {
+                remove_nested_all(map, &parent_segments[1..], leaf_key, vv);
+            }
+        }
+    }
 }
