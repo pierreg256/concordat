@@ -283,20 +283,21 @@ fn remove_nested_all(
         Some(items) => items,
         None => return,
     };
+    let leaf_key = leaf_key.to_string();
 
     if parent_segments.len() == 1 {
         // We've reached the parent — remove the leaf from all concurrent
         // Object values at this level.
         for (_, cv) in items.iter_mut() {
             if let CrdtValue::Object(map) = cv {
-                map.remove(&leaf_key.to_string(), vv);
+                map.remove(&leaf_key, vv);
             }
         }
     } else {
         // Recurse into all concurrent Object values for the next segment.
         for (_, cv) in items.iter_mut() {
             if let CrdtValue::Object(map) = cv {
-                remove_nested_all(map, &parent_segments[1..], leaf_key, vv);
+                remove_nested_all(map, &parent_segments[1..], &leaf_key, vv);
             }
         }
     }
